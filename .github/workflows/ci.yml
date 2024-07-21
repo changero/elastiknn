@@ -173,7 +173,7 @@ jobs:
     runs-on:
       - ubuntu-22.04
     timeout-minutes: 10
-    needs: [show-github-context, test-jvm, test-python, test-benchmarks]
+    needs: [show-github-context, test-jvm]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -185,32 +185,32 @@ jobs:
             ${{ github.workflow }}.${{ github.job }}
           path: |
             **/target/**/*
-      - name: Setup Release Credentials
-        env:
-          PYPIRC_B64: ${{ secrets.PYPIRC_B64 }}
-        run: ./.github/scripts/setup-env.sh
+      # - name: Setup Release Credentials
+      #   env:
+      #     PYPIRC_B64: ${{ secrets.PYPIRC_B64 }}
+      #   run: ./.github/scripts/setup-env.sh
       - uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
           java-version: 17
           cache: 'sbt'
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.7.15'
-          cache: 'pip'
+      # - uses: actions/setup-python@v4
+      #   with:
+      #     python-version: '3.7.15'
+      #     cache: 'pip'
       - uses: arduino/setup-task@v1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Setup Setuptools
-        run: python3 -m pip install setuptools
-      - name: Publish to PyPi
-        run: task pyPublishSnapshot VERSION=$(cat version)-dev${{ github.run_number }}
-        if: github.event_name == 'pull_request'
-      - name: Publish Plugin from PR
-        if: github.event_name == 'pull_request'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: task jvmPublishSnapshot VERSION=$(cat version)-PR${{ github.event.pull_request.number }}-SNAPSHOT
+      # - name: Setup Setuptools
+      #   run: python3 -m pip install setuptools
+      # - name: Publish to PyPi
+      #   run: task pyPublishSnapshot VERSION=$(cat version)-dev${{ github.run_number }}
+      #   if: github.event_name == 'pull_request'
+      # - name: Publish Plugin from PR
+      #   if: github.event_name == 'pull_request'
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: task jvmPublishSnapshot VERSION=$(cat version)-PR${{ github.event.pull_request.number }}-SNAPSHOT
       - name: Publish Plugin from Main
         if: github.event_name == 'push'
         env:
